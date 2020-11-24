@@ -1,0 +1,288 @@
+
+<%- include('template/header.ejs', {baseUrl}); %>
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+  <%- include('template/sidebar.ejs', {baseUrl});%>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                <!-- Sidebar Toggle (Topbar) -->
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <!-- Topbar Search -->
+                <form
+                    class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                            aria-label="Search" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button">
+                                <i class="fas fa-search fa-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+               <%- include('template/topbar.ejs', {baseUrl});%>
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                    <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                            class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+                </div>
+
+           
+                <!-- Content Row -->
+
+                <div class="row">
+
+                    <!-- Area Chart -->
+                    <div class="col">
+                        <div class="card shadow mb-4">
+                            <!-- Card Header - Dropdown -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Detail</h6>  
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <h3>Filter:</h3>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="status">Status</label>
+                                            <select class="form-control" id="status" name="status" id="status">
+                                              <option value="ALL">ALL</option>
+                                              <option value="LUNAS">LUNAS</option>
+                                              <option value="BELUM LUNAS">BELUM LUNAS</option>
+                                            </select>
+                                          </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="input-group date">
+                                            <div class="input-group-addon">
+                                                <span class="glyphicon glyphicon-th"></span>
+                                            </div>
+                                            <input placeholder="masukkan tanggal awal" type="text" class="form-control datepicker" id="tanggalAwal" name="tanggalAwal" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="input-group date">
+                                            <div class="input-group-addon">
+                                                <span class="glyphicon glyphicon-th"></span>
+                                            </div>
+                                            <input type="hidden" name="nis" id="nis" value="<%=nis%>">
+                                            <!-- <input type="hidden" name="bayar" id="bayar" value=> -->
+                                            <input placeholder="masukkan tanggal akhir" type="text" class="form-control datepicker" id="tanggalAkhir" name="tanggalAkhir" on autocomplete="off"> 
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <button type="button" class="btn btn-primary" id="filter" onclick="filter()">filter</button>
+                                    </div>
+                                </div>
+                                <!-- ini body -->
+                                <div class="row">
+                                    
+                                    <div class="col">
+                                <!-- <div class="h1 mb-0 font-weight-bold text-gray-800">halo</div> -->
+                                        <table class="table table-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">No</th>
+                                                <th scope="col">Jumlah pembayaran</th>
+                                                <th scope="col">Tgl/Bulan/tahun</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Aksi</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <% let i = nomorData; %>
+                                            <% data.forEach(d => { %>
+                                            <tr>
+                                                <% let tanggal = new Date(d.tglBayar);%>
+                                                <th scope="row"><%=++i;%></th>
+                                                <td><%=d.bayar%></td>
+                                                <td><%=`${tanggal.getDate()}-${tanggal.getMonth()+1}-${tanggal.getFullYear()}`%></td>
+
+                                                <td><%= d.status%></td>
+                                                <% if(d.status == 'BELUM LUNAS'){%>
+                                                <td><a href=""  onclick="bayar(this)" data-toggle="modal" data-bayar="<%=d.bayar%>" data-id="<%=d.id%>" data-target="#transaksiKas" class="badge badge-primary">Bayar</a></td>
+                                                <% }else{ %>
+                                                    <td></td>
+                                                <% } %>
+                                            </tr>     
+                                            <% }) %>                                                        
+                                            </tbody>
+                                        
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+
+                                        <nav class="paginasi" aria-label="Page navigation example">
+                                            <ul class="pagination">
+                                                <% if(halamanAktif > 1){ %>
+                                              <li class="page-item"><a class="page-link" href="<%=baseUrl%>home/detail/<%=data[0].nis%>/<%=halamanAktif-1%>">Previous</a></li>
+                                                <% } %>
+                                              <% for(let j = 0; j < jumlahHalaman; j++){%>
+                                              <li class="page-item"><a class="page-link" href="<%=baseUrl%>home/detail/<%=data[0].nis%>/<%=j+1%>"><%=j+1%></a></li>
+                                              <% } %>
+                                                <% if(halamanAktif < jumlahHalaman ){ %>
+                                              <li class="page-item"><a class="page-link" href="<%=baseUrl%>home/detail/<%=data[0].nis%>/<%=halamanAktif+1%>">Next</a></li>
+                                                <% } %>
+                                            </ul>
+                                          </nav>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <a class="btn btn-secondary" href="<%=baseUrl%>home/index" role="button">Kembali</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                
+                </div>
+
+              </div>
+            <!-- /.container-fluid -->
+
+        </div>
+       
+
+<!--footer lih-->
+
+    <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Adhis M.A 2020</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+               
+<!-- Modal -->
+<div class="modal fade " id="transaksiKas" tabindex="-1" role="dialog" aria-labelledby="transaksiKas" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" onclick="bayarClose()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <!--form bayar-->
+        <form action="<%=baseUrl%>home/detail/ubah" method="post">
+            <!-- <input type="text" name="nis" id="nis"> -->
+            <input type="hidden" name="id" id="id">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="jmlPembayaran">Jumlah Pembayaran</label>
+                    <input type="text" class="form-control" id="jmlPembayaran" onclick="cekBayar(this)" onkeyup="cekBayar(this)" name="jmlPembayaran" placeholder="Masukkan Jumlah bayar">
+                </div>
+                <div class="form-group">
+                    <label>Tgl Bayar</label>
+                    <div class="input-group date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                        <input class="form-control" id="tglBayar" type="text" placeholder="Readonly input here…" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="bayarClose()">Tutup</button>
+            <button type="submit" class="btn btn-primary" >Bayar</button>
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- Bootstrap core JavaScript-->
+
+   <script src="<%=baseUrl;%>vendor/jquery/jquery.min.js"></script>
+   <script src="<%=baseUrl;%>vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+   <!-- Core plugin JavaScript-->
+   <script src="<%=baseUrl;%>vendor/jquery-easing/jquery.easing.min.js"></script>
+
+   <!-- Custom scripts for all pages-->
+   <script src="<%=baseUrl;%>js/sb-admin-2.min.js"></script>
+
+   <!-- Page level plugins -->
+   <script src="<%=baseUrl;%>vendor/chart.js/Chart.min.js"></script>
+
+   <!-- Page level custom scripts -->
+   <script src="<%=baseUrl;%>js/demo/chart-area-demo.js"></script>
+   <script src="<%=baseUrl;%>js/demo/chart-pie-demo.js"></script> 
+   <script src="<%=baseUrl;%>js/datepicker.js"></script> 
+   <script>
+       $(function(){
+        $(".datepicker").datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayHighlight: true,
+    });
+   });
+   </script>
+   <script src="<%=baseUrl;%>js/detail.js"></script>
+
+</body>
+
+</html>
